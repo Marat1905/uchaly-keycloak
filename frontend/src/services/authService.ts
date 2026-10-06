@@ -12,6 +12,56 @@ import { jwtDecode } from 'jwt-decode';
 import type { KeycloakTokenPayload } from '../types/auth';
 
 /**
+ * Служебные realm-роли Keycloak, которые не должны показываться в UI.
+ *
+ *   offline_access      — нужна для refresh-токенов, но это не «роль пользователя».
+ *   uma_authorization   — нужна для Account Console, тоже не «роль».
+ *   default-roles-*     — композитная роль, содержащая две предыдущие.
+ *                         Показывать её пользователю бессмысленно.
+ *
+ * Регуляркой (startsWith) ловим любые default-roles-<realm>, чтобы
+ * не привязываться к имени realm.
+ */
+const HIDDEN_ROLES = new Set([
+    'offline_access',
+    'uma_authorization',
+]);
+const DEFAULT_ROLE_PREFIX = 'default-roles-';
+
+/**
+ * Проверка, является ли роль «служебной».
+ */
+const isHiddenRole = (role: string): boolean =>
+    HIDDEN_ROLES.has(role) || role.startsWith(DEFAULT_ROLE_PREFIX);
+
+/**
+ * Убирает дубли и служебные роли из массива.
+ *
+ * Зачем нужно:
+ *   1. Если один и тот же protocolMapper «realm roles» подключён и в клиенте,
+ *      и в clientScope — Keycloak пишет роли в claim дважды. В payload
+ *      получаем массив с дублями: ["User", "User"].
+ *   2. Composite-роль default-roles-<realm> разворачивается в свои
+ *      составляющие (offline_access, uma_authorization) — они попадают
+ *      в тот же claim.
+ *
+ * Функция оставляет только «настоящие» роли, которые интересны UI.
+ */
+const normalizeRoles = (rawRoles: string[]): string[] => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+
+    for (const role of rawRoles) {
+        if (!role || isHiddenRole(role)) continue;
+        if (seen.has(role)) continue;
+        seen.add(role);
+        result.push(role);
+    }
+
+    return result;
+};
+
+/**
  * Преобразует payload access-токена Keycloak в наш UserDto.
  * ВАЖНО: часть полей (isActive, createdAt) в токене отсутствует — их
  * подставляет вызывающий код при необходимости, дозапрашивая Admin API.
@@ -19,10 +69,17 @@ import type { KeycloakTokenPayload } from '../types/auth';
 const mapTokenToUser = (payload: KeycloakTokenPayload): UserDto => {
     // Извлекаем realm-роли. В нашем realm-export маппер кладёт их в claim "roles".
     // На случай, если маппер не сработал, читаем из resource_access.
-    const realmRoles: string[] =
+    //
+    // ВАЖНО: массив может содержать дубли (если один и тот же маппер
+    // случайно подключён и в клиенте, и в scope) и служебные роли
+    // (offline_access, uma_authorization, default-roles-*).
+    // Всё это отфильтровываем через normalizeRoles.
+    const rawRoles: string[] =
         payload.roles ??
         payload.resource_access?.['uchaly-frontend']?.roles ??
         [];
+
+    const realmRoles: string[] = normalizeRoles(rawRoles);
 
     const firstName = payload.given_name ?? '';
     const lastName = payload.family_name ?? '';
@@ -92,15 +149,11 @@ export const authService = {
     /**
      * Выход из системы. Очищает SSO-сессию Keycloak.
      *
-     * ИЗМЕНЕНИЕ:
-     * Раньше redirectUri указывал на '/login', из-за чего после выхода
-     * пользователь возвращался на страницу входа. Теперь возвращаем его
-     * на главную страницу ('/').
-     *
      * ВАЖНО: keycloak.logout() — это редирект на SSO-эндпоинт Keycloak,
      * браузер уходит со страницы SPA. Поэтому последующие вызовы
      * (например, navigate('/') внутри обработчика кнопки) не успевают
      * выполниться — реальный переход делает именно redirectUri.
+     * Возвращаем пользователя на главную страницу.
      */
     logout: (): void => {
         keycloak.logout({

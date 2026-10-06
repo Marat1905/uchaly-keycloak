@@ -20,6 +20,53 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "realm-export", "realm-expor
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "frontend", "frontend\frontend.esproj", "{462EE049-9FE1-B47D-1B3E-22BACA5D9185}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "themes", "themes", "{4AE67942-E5AB-43E0-881E-C32B557509C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "uchaly", "uchaly", "{59C520E7-A163-48D2-9E6B-6B63BC6ECEE8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "login", "login", "{1DBC93AD-011D-4607-8AFC-E69E28CE6B42}"
+	ProjectSection(SolutionItems) = preProject
+		keycloak\themes\uchaly\login\delete-account-confirm.ftl = keycloak\themes\uchaly\login\delete-account-confirm.ftl
+		keycloak\themes\uchaly\login\error.ftl = keycloak\themes\uchaly\login\error.ftl
+		keycloak\themes\uchaly\login\frontchannel-logout.ftl = keycloak\themes\uchaly\login\frontchannel-logout.ftl
+		keycloak\themes\uchaly\login\info.ftl = keycloak\themes\uchaly\login\info.ftl
+		keycloak\themes\uchaly\login\login-config-totp.ftl = keycloak\themes\uchaly\login\login-config-totp.ftl
+		keycloak\themes\uchaly\login\login-oauth-grant.ftl = keycloak\themes\uchaly\login\login-oauth-grant.ftl
+		keycloak\themes\uchaly\login\login-otp.ftl = keycloak\themes\uchaly\login\login-otp.ftl
+		keycloak\themes\uchaly\login\login-page-expired.ftl = keycloak\themes\uchaly\login\login-page-expired.ftl
+		keycloak\themes\uchaly\login\login-recovery-authn-code-config.ftl = keycloak\themes\uchaly\login\login-recovery-authn-code-config.ftl
+		keycloak\themes\uchaly\login\login-recovery-authn-code-input.ftl = keycloak\themes\uchaly\login\login-recovery-authn-code-input.ftl
+		keycloak\themes\uchaly\login\login-reset-password.ftl = keycloak\themes\uchaly\login\login-reset-password.ftl
+		keycloak\themes\uchaly\login\login-update-password.ftl = keycloak\themes\uchaly\login\login-update-password.ftl
+		keycloak\themes\uchaly\login\login-verify-email.ftl = keycloak\themes\uchaly\login\login-verify-email.ftl
+		keycloak\themes\uchaly\login\login.ftl = keycloak\themes\uchaly\login\login.ftl
+		keycloak\themes\uchaly\login\logout-confirm.ftl = keycloak\themes\uchaly\login\logout-confirm.ftl
+		keycloak\themes\uchaly\login\register.ftl = keycloak\themes\uchaly\login\register.ftl
+		keycloak\themes\uchaly\login\template.ftl = keycloak\themes\uchaly\login\template.ftl
+		keycloak\themes\uchaly\login\terms.ftl = keycloak\themes\uchaly\login\terms.ftl
+		keycloak\themes\uchaly\login\theme.properties = keycloak\themes\uchaly\login\theme.properties
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{5DC40016-D6C2-41A5-96EB-8436DA97F814}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "css", "css", "{7E6ECD2D-7D63-49A0-AA21-0E3FE6083574}"
+	ProjectSection(SolutionItems) = preProject
+		keycloak\themes\uchaly\login\resources\css\uchaly.css = keycloak\themes\uchaly\login\resources\css\uchaly.css
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "img", "img", "{FC8088AD-5722-427D-B7EC-3E4D516A0A52}"
+	ProjectSection(SolutionItems) = preProject
+		keycloak\themes\uchaly\login\resources\img\logo-dark.svg = keycloak\themes\uchaly\login\resources\img\logo-dark.svg
+		keycloak\themes\uchaly\login\resources\img\logo-icon-dark.svg = keycloak\themes\uchaly\login\resources\img\logo-icon-dark.svg
+		keycloak\themes\uchaly\login\resources\img\logo-icon.svg = keycloak\themes\uchaly\login\resources\img\logo-icon.svg
+		keycloak\themes\uchaly\login\resources\img\logo.svg = keycloak\themes\uchaly\login\resources\img\logo.svg
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "login-actions", "login-actions", "{D907E517-F416-4AF9-9BDF-CC0827AB5FF6}"
+	ProjectSection(SolutionItems) = preProject
+		keycloak\themes\uchaly\login\login-actions\authenticate.ftl = keycloak\themes\uchaly\login\login-actions\authenticate.ftl
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +85,13 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2954C37A-75D9-4ABC-8249-28B487DB1EF8} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
+		{4AE67942-E5AB-43E0-881E-C32B557509C4} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
+		{59C520E7-A163-48D2-9E6B-6B63BC6ECEE8} = {4AE67942-E5AB-43E0-881E-C32B557509C4}
+		{1DBC93AD-011D-4607-8AFC-E69E28CE6B42} = {59C520E7-A163-48D2-9E6B-6B63BC6ECEE8}
+		{5DC40016-D6C2-41A5-96EB-8436DA97F814} = {1DBC93AD-011D-4607-8AFC-E69E28CE6B42}
+		{7E6ECD2D-7D63-49A0-AA21-0E3FE6083574} = {5DC40016-D6C2-41A5-96EB-8436DA97F814}
+		{FC8088AD-5722-427D-B7EC-3E4D516A0A52} = {5DC40016-D6C2-41A5-96EB-8436DA97F814}
+		{D907E517-F416-4AF9-9BDF-CC0827AB5FF6} = {1DBC93AD-011D-4607-8AFC-E69E28CE6B42}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7D9A6338-50B4-4246-96EB-67715274BF4C}

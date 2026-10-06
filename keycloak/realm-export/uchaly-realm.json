@@ -36,6 +36,14 @@
   "supportedLocales": [ "ru", "en" ],
   "defaultLocale": "ru",
 
+  "defaultRole": {
+    "name": "default-roles-uchaly",
+    "description": "${role_default-roles}",
+    "composite": true,
+    "clientRole": false,
+    "containerId": "uchaly"
+  },
+
   "roles": {
     "realm": [
       {
@@ -267,20 +275,6 @@
       },
       "fullScopeAllowed": true,
       "protocolMappers": [
-        {
-          "name": "realm roles",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-realm-role-mapper",
-          "consentRequired": false,
-          "config": {
-            "multivalued": "true",
-            "userinfo.token.claim": "true",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "claim.name": "roles",
-            "jsonType.label": "String"
-          }
-        },
         {
           "name": "audience",
           "protocol": "openid-connect",
@@ -736,7 +730,7 @@
 
   "smtpServer": {},
 
-  "loginTheme": "keycloak",
+  "loginTheme": "uchaly",
   "accountTheme": "keycloak.v3",
   "adminTheme": "keycloak.v2",
   "emailTheme": "keycloak",

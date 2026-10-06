@@ -30,6 +30,26 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     useEffect(() => {
         if (isInitialized) {
             localStorage.setItem("theme", theme);
+
+            // -----------------------------------------------------------------
+            // ВАЖНО: сохраняем тему ещё и в cookie.
+            //
+            // Зачем:
+            //   Keycloak-страницы (login, register и т.д.) отдаются с другого
+            //   origin'а (:8090), где localStorage React-приложения НЕ доступен.
+            //   Cookie же разделяются между портами одного хоста (scope cookie
+            //   — домен + путь, порт не учитывается). Поэтому cookie — это
+            //   единственный способ передать тему из SPA в Keycloak.
+            //
+            // Формат имени 'uchaly_theme' выбран произвольно, чтобы не
+            // конфликтовать с другими cookie.
+            //
+            // max-age=31536000 — год, path=/ — на весь сайт,
+            // SameSite=Lax — защита от CSRF, но при этом cookie отправляется
+            // при top-level GET-переходах на Keycloak.
+            // -----------------------------------------------------------------
+            document.cookie = `uchaly_theme=${theme}; path=/; max-age=31536000; SameSite=Lax`;
+
             if (theme === "dark") {
                 document.documentElement.classList.add("dark");
             } else {

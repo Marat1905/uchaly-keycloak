@@ -56,6 +56,25 @@ adminClient.interceptors.request.use(async (config) => {
 });
 
 // -----------------------------------------------------------------------------
+// Служебные роли Keycloak. Не должны показываться в UI.
+//
+//   offline_access      — для refresh-токенов;
+//   uma_authorization   — для Account Console;
+//   default-roles-*     — композитная роль, содержащая две предыдущие.
+//
+// Регуляркой (startsWith) ловим любые default-roles-<realm>, чтобы
+// не привязываться к имени realm.
+// -----------------------------------------------------------------------------
+const HIDDEN_ROLES = new Set([
+    'offline_access',
+    'uma_authorization',
+]);
+const DEFAULT_ROLE_PREFIX = 'default-roles-';
+
+const isHiddenRole = (name: string): boolean =>
+    HIDDEN_ROLES.has(name) || name.startsWith(DEFAULT_ROLE_PREFIX);
+
+// -----------------------------------------------------------------------------
 // Вспомогательные типы — то, что реально возвращает Keycloak.
 // -----------------------------------------------------------------------------
 
@@ -103,6 +122,18 @@ const mapUser = (u: KeycloakUserRepresentation): UserDto => {
         [lastName, firstName, patronymic].filter(Boolean).join(' ').trim() ||
         u.username;
 
+    // Роли из admin-API уже приходят «сырыми» — фильтруем их здесь
+    // (см. getUserRealmRoles), но на всякий случай прогоняем ещё раз,
+    // если кто-то передал их напрямую.
+    const seen = new Set<string>();
+    const cleanRoles: string[] = [];
+    for (const role of u.realmRoles ?? []) {
+        if (!role || isHiddenRole(role)) continue;
+        if (seen.has(role)) continue;
+        seen.add(role);
+        cleanRoles.push(role);
+    }
+
     return {
         id: u.id,
         email: u.email ?? u.username,
@@ -112,7 +143,7 @@ const mapUser = (u: KeycloakUserRepresentation): UserDto => {
         avatarUrl: undefined,
         isActive: u.enabled,
         isDeleted: false, // в Keycloak нет мягкого удаления
-        roles: u.realmRoles ?? [],
+        roles: cleanRoles,
         createdAt: u.createdTimestamp
             ? new Date(u.createdTimestamp).toISOString()
             : new Date().toISOString(),
@@ -310,28 +341,26 @@ export const adminService = {
 
     /**
      * Получить все realm-роли.
+     *
+     * Служебные роли (offline_access, uma_authorization, default-roles-*)
+     * отфильтрованы — иначе они попадают в UI:
+     *   - в выпадающие списки фильтров;
+     *   - в модалку редактирования ролей пользователя;
+     *   - в статистику.
      */
     async getRoles(): Promise<RoleDto[]> {
         const response = await adminClient.get<KeycloakRoleRepresentation[]>('/roles');
-        // Исключаем дефолтные роли Keycloak (offline_access, uma_authorization)
-        const filtered = response.data.filter(
-            (r) => !['offline_access', 'uma_authorization', 'default-roles-uchaly'].includes(r.name),
-        );
+
+        const filtered = response.data.filter((r) => !isHiddenRole(r.name));
 
         // Для каждой роли считаем количество пользователей
         const rolesWithCount = await Promise.all(
             filtered.map(async (r) => {
-                const users = await adminClient.get<KeycloakUserRepresentation[]>(
-                    `/roles/${r.name}/users`,
-                    { params: { max: 1 } },
-                );
-                // Keycloak не возвращает общее количество — используем max=0 и подсчёт
-                // (в текущей версии Admin API нет count для ролей, поэтому грубо).
                 const totalCountResp = await adminClient.get<KeycloakUserRepresentation[]>(
                     `/roles/${r.name}/users`,
                     { params: { max: 1000 } },
                 );
-                return mapRole(r, totalCountResp.data.length || users.data.length);
+                return mapRole(r, totalCountResp.data.length);
             }),
         );
 
@@ -340,12 +369,18 @@ export const adminService = {
 
     /**
      * Получить realm-роли пользователя.
+     *
+     * Возвращает только «настоящие» роли — без служебных offline_access,
+     * uma_authorization и default-roles-*. Иначе они попадают в UI:
+     *   - в таблицу пользователей (колонка «Роли»);
+     *   - в модалку редактирования ролей;
+     *   - в статистику.
      */
     async getUserRealmRoles(userId: string): Promise<KeycloakRoleMappingRepresentation[]> {
         const response = await adminClient.get<KeycloakRoleMappingRepresentation[]>(
             `/users/${userId}/role-mappings/realm`,
         );
-        return response.data;
+        return response.data.filter((r) => !isHiddenRole(r.name));
     },
 
     /**
@@ -450,11 +485,9 @@ export const adminService = {
             (u) => (u.createdTimestamp ?? 0) >= oneWeekAgo,
         ).length;
 
-        // Роли (исключаем дефолтные)
+        // Роли (исключаем служебные)
         const rolesResp = await adminClient.get<KeycloakRoleRepresentation[]>('/roles');
-        const totalRoles = rolesResp.data.filter(
-            (r) => !['offline_access', 'uma_authorization', 'default-roles-uchaly'].includes(r.name),
-        ).length;
+        const totalRoles = rolesResp.data.filter((r) => !isHiddenRole(r.name)).length;
 
         return {
             totalUsers,

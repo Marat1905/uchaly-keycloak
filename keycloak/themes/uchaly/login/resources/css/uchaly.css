@@ -1,0 +1,719 @@
+/* =============================================================================
+   Uchaly Keycloak Theme — кастомные стили всех страниц.
+
+   Тёмная тема управляется классом .dark на <html> — тем же способом,
+   что и в React-приложении (см. @custom-variant dark (&:is(.dark *))).
+
+   Класс ставит template.ftl, читая cookie 'uchaly_theme', которую пишет
+   ThemeContext.tsx в SPA.
+
+   Дополнительно: если cookie нет (например, пользователь первый раз
+   открыл Keycloak напрямую, без захода в SPA), тема подхватывается из
+   системных настроек через @media (prefers-color-scheme: dark).
+   ============================================================================= */
+
+/* ---------------------------------------------------------------------------
+   Светлая тема — значения по умолчанию.
+   --------------------------------------------------------------------------- */
+:root {
+    --uchaly-bg: #f9fafb;
+    --uchaly-card-bg: #ffffff;
+    --uchaly-text: #101828;
+    --uchaly-text-secondary: #667085;
+    --uchaly-border: #e4e7ec;
+    --uchaly-input-bg: #ffffff;
+    --uchaly-input-border: #d0d5dd;
+    --uchaly-primary: #465fff;
+    --uchaly-primary-hover: #3641f5;
+    --uchaly-primary-text: #ffffff;
+    --uchaly-danger: #d92d20;
+    --uchaly-danger-hover: #b42318;
+    --uchaly-error-bg: #fef3f2;
+    --uchaly-error-text: #b42318;
+    --uchaly-error-border: #fecdca;
+    --uchaly-success-bg: #ecfdf3;
+    --uchaly-success-text: #027a48;
+    --uchaly-success-border: #a6f4c5;
+    --uchaly-warning-bg: #fffaeb;
+    --uchaly-warning-text: #b54708;
+    --uchaly-warning-border: #fedf89;
+    --uchaly-info-bg: #eff8ff;
+    --uchaly-info-text: #175cd3;
+    --uchaly-info-border: #b2ddff;
+    --uchaly-link: #465fff;
+    --uchaly-link-hover: #3641f5;
+    --uchaly-asterisk: #f04438;
+    --uchaly-shadow: 0 4px 24px rgba(16, 24, 40, 0.08);
+    --uchaly-radius-sm: 8px;
+    --uchaly-radius: 12px;
+    --uchaly-radius-lg: 24px;
+    --uchaly-font: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --uchaly-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    --uchaly-hover-overlay: rgba(0, 0, 0, 0.04);
+    --uchaly-subtle-bg: rgba(0, 0, 0, 0.02);
+}
+
+/* ---------------------------------------------------------------------------
+   Fallback: системная тёмная тема.
+   Применяется только если пользователь НЕ выбрал тему явно (нет cookie,
+   значит нет класса .dark и нет класса .light).
+   --------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+        --uchaly-bg: #101828;
+        --uchaly-card-bg: #1d2939;
+        --uchaly-text: #f9fafb;
+        --uchaly-text-secondary: #98a2b3;
+        --uchaly-border: #344054;
+        --uchaly-input-bg: #1d2939;
+        --uchaly-input-border: #344054;
+        --uchaly-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+        --uchaly-error-bg: rgba(240, 68, 56, 0.1);
+        --uchaly-error-border: #912018;
+        --uchaly-error-text: #fda29b;
+        --uchaly-success-bg: rgba(18, 183, 106, 0.1);
+        --uchaly-success-border: #027a48;
+        --uchaly-success-text: #6ce9a6;
+        --uchaly-warning-bg: rgba(247, 144, 9, 0.1);
+        --uchaly-warning-border: #b54708;
+        --uchaly-warning-text: #fec84b;
+        --uchaly-info-bg: rgba(11, 165, 236, 0.1);
+        --uchaly-info-border: #065986;
+        --uchaly-info-text: #7cd4fd;
+        --uchaly-hover-overlay: rgba(255, 255, 255, 0.06);
+        --uchaly-subtle-bg: rgba(255, 255, 255, 0.02);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   Явный выбор пользователя через .dark (совпадает с React-приложением).
+   Специфичность .dark:root выше, чем :root:not(.light) внутри @media,
+   поэтому перебивает системную тему.
+   --------------------------------------------------------------------------- */
+.dark {
+    --uchaly-bg: #101828;
+    --uchaly-card-bg: #1d2939;
+    --uchaly-text: #f9fafb;
+    --uchaly-text-secondary: #98a2b3;
+    --uchaly-border: #344054;
+    --uchaly-input-bg: #1d2939;
+    --uchaly-input-border: #344054;
+    --uchaly-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+    --uchaly-error-bg: rgba(240, 68, 56, 0.1);
+    --uchaly-error-border: #912018;
+    --uchaly-error-text: #fda29b;
+    --uchaly-success-bg: rgba(18, 183, 106, 0.1);
+    --uchaly-success-border: #027a48;
+    --uchaly-success-text: #6ce9a6;
+    --uchaly-warning-bg: rgba(247, 144, 9, 0.1);
+    --uchaly-warning-border: #b54708;
+    --uchaly-warning-text: #fec84b;
+    --uchaly-info-bg: rgba(11, 165, 236, 0.1);
+    --uchaly-info-border: #065986;
+    --uchaly-info-text: #7cd4fd;
+    --uchaly-hover-overlay: rgba(255, 255, 255, 0.06);
+    --uchaly-subtle-bg: rgba(255, 255, 255, 0.02);
+}
+
+/* ---------------------------------------------------------------------------
+   Базовые
+   --------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: var(--uchaly-font);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--uchaly-text);
+    background: var(--uchaly-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ---------------------------------------------------------------------------
+   Разметка
+   --------------------------------------------------------------------------- */
+.uchaly-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+}
+
+.uchaly-container {
+    width: 100%;
+    max-width: 480px;
+}
+
+.uchaly-brand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+    text-decoration: none;
+}
+
+.uchaly-brand__logo {
+    height: 48px;
+    width: auto;
+    display: none;
+}
+
+/* Логотип по текущей теме. Дефолт (без класса) — светлый логотип. */
+.uchaly-brand__logo--light {
+    display: block;
+}
+
+.dark .uchaly-brand__logo--light {
+    display: none;
+}
+
+.dark .uchaly-brand__logo--dark {
+    display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Если пользователь не выбрал тему явно (нет .dark, нет .light) —
+       берём тёмный логотип по системной теме. */
+    :root:not(.light):not(.dark) .uchaly-brand__logo--light {
+        display: none;
+    }
+
+    :root:not(.light):not(.dark) .uchaly-brand__logo--dark {
+        display: block;
+    }
+}
+
+.uchaly-card {
+    background: var(--uchaly-card-bg);
+    border-radius: var(--uchaly-radius-lg);
+    border: 1px solid var(--uchaly-border);
+    box-shadow: var(--uchaly-shadow);
+    padding: 40px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* ---------------------------------------------------------------------------
+   Заголовки и текст
+   --------------------------------------------------------------------------- */
+.uchaly-title {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 4px 0;
+    color: var(--uchaly-text);
+}
+
+.uchaly-title--center {
+    text-align: center;
+}
+
+.uchaly-subtitle {
+    font-size: 14px;
+    color: var(--uchaly-text-secondary);
+    margin: 0 0 24px 0;
+}
+
+.uchaly-text {
+    font-size: 15px;
+    color: var(--uchaly-text);
+    margin: 0 0 12px 0;
+}
+
+.uchaly-text--muted {
+    color: var(--uchaly-text-secondary);
+}
+
+.uchaly-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.uchaly-required-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--uchaly-text-secondary);
+    white-space: nowrap;
+    padding-top: 4px;
+}
+
+.uchaly-required-asterisk {
+    color: var(--uchaly-asterisk);
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Alert-блоки
+   --------------------------------------------------------------------------- */
+.uchaly-alert {
+    padding: 12px 16px;
+    border-radius: var(--uchaly-radius);
+    font-size: 14px;
+    line-height: 1.45;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+}
+
+.uchaly-alert--error {
+    background: var(--uchaly-error-bg);
+    color: var(--uchaly-error-text);
+    border-color: var(--uchaly-error-border);
+}
+
+.uchaly-alert--success {
+    background: var(--uchaly-success-bg);
+    color: var(--uchaly-success-text);
+    border-color: var(--uchaly-success-border);
+}
+
+.uchaly-alert--warning {
+    background: var(--uchaly-warning-bg);
+    color: var(--uchaly-warning-text);
+    border-color: var(--uchaly-warning-border);
+}
+
+.uchaly-alert--info {
+    background: var(--uchaly-info-bg);
+    color: var(--uchaly-info-text);
+    border-color: var(--uchaly-info-border);
+}
+
+/* ---------------------------------------------------------------------------
+   Формы
+   --------------------------------------------------------------------------- */
+.uchaly-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.uchaly-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.uchaly-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--uchaly-text);
+}
+
+.uchaly-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--uchaly-text);
+    background: var(--uchaly-input-bg);
+    border: 1px solid var(--uchaly-input-border);
+    border-radius: var(--uchaly-radius);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+    .uchaly-input:focus {
+        border-color: var(--uchaly-primary);
+        box-shadow: 0 0 0 4px rgba(70, 95, 255, 0.12);
+    }
+
+    .uchaly-input::placeholder {
+        color: var(--uchaly-text-secondary);
+        opacity: 0.6;
+    }
+
+    .uchaly-input[aria-invalid="true"] {
+        border-color: var(--uchaly-asterisk);
+    }
+
+.uchaly-input--password {
+    padding-right: 48px;
+}
+
+.uchaly-password-wrap {
+    position: relative;
+}
+
+.uchaly-password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: var(--uchaly-radius-sm);
+    background: transparent;
+    color: var(--uchaly-text-secondary);
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+    .uchaly-password-toggle:hover {
+        color: var(--uchaly-text);
+        background: var(--uchaly-hover-overlay);
+    }
+
+    .uchaly-password-toggle.is-visible {
+        color: var(--uchaly-primary);
+    }
+
+.uchaly-field-error {
+    font-size: 13px;
+    color: var(--uchaly-asterisk);
+    margin-top: 2px;
+}
+
+.uchaly-code-input {
+    font-family: var(--uchaly-font-mono);
+    font-size: 20px;
+    letter-spacing: 4px;
+    text-align: center;
+}
+
+.uchaly-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.uchaly-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--uchaly-text);
+    cursor: pointer;
+    user-select: none;
+}
+
+    .uchaly-checkbox input[type="checkbox"],
+    .uchaly-checkbox input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--uchaly-primary);
+        cursor: pointer;
+    }
+
+/* ---------------------------------------------------------------------------
+   Ссылки
+   --------------------------------------------------------------------------- */
+.uchaly-link {
+    color: var(--uchaly-link);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.15s ease;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+    .uchaly-link:hover {
+        color: var(--uchaly-link-hover);
+        text-decoration: underline;
+    }
+
+.uchaly-link--strong {
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Кнопки
+   --------------------------------------------------------------------------- */
+.uchaly-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 14px 24px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--uchaly-radius);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+}
+
+.uchaly-btn--primary {
+    background: var(--uchaly-primary);
+    color: var(--uchaly-primary-text);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+    .uchaly-btn--primary:hover {
+        background: var(--uchaly-primary-hover);
+    }
+
+    .uchaly-btn--primary:active {
+        transform: translateY(1px);
+    }
+
+    .uchaly-btn--primary:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(70, 95, 255, 0.24);
+    }
+
+.uchaly-btn--secondary {
+    background: transparent;
+    color: var(--uchaly-text);
+    border: 1px solid var(--uchaly-border);
+}
+
+    .uchaly-btn--secondary:hover {
+        background: var(--uchaly-hover-overlay);
+    }
+
+.uchaly-btn--danger {
+    background: var(--uchaly-danger);
+    color: #ffffff;
+}
+
+    .uchaly-btn--danger:hover {
+        background: var(--uchaly-danger-hover);
+    }
+
+.uchaly-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------------------
+   Нижние блоки
+   --------------------------------------------------------------------------- */
+.uchaly-footer-actions {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--uchaly-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--uchaly-text-secondary);
+}
+
+    .uchaly-footer-actions form {
+        display: inline;
+    }
+
+.uchaly-copyright {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--uchaly-text-secondary);
+}
+
+    .uchaly-copyright p {
+        margin: 0;
+    }
+
+/* ---------------------------------------------------------------------------
+   Информационные списки
+   --------------------------------------------------------------------------- */
+.uchaly-info-list {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0 0 20px 0;
+    font-size: 15px;
+    color: var(--uchaly-text);
+}
+
+    .uchaly-info-list li {
+        margin-bottom: 8px;
+    }
+
+        .uchaly-info-list li ul {
+            margin-top: 6px;
+        }
+
+    .uchaly-info-list p {
+        margin: 0 0 6px 0;
+    }
+
+.uchaly-scopes-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.uchaly-scope-name {
+    font-weight: 600;
+}
+
+.uchaly-scope-desc {
+    color: var(--uchaly-text-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   QR-код для TOTP (QR всегда на белом фоне — иначе сканер не читает)
+   --------------------------------------------------------------------------- */
+.uchaly-qr-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: var(--uchaly-radius);
+    margin: 12px 0;
+}
+
+    .uchaly-qr-wrapper img {
+        display: block;
+        max-width: 220px;
+        height: auto;
+    }
+
+.uchaly-code-block {
+    font-family: var(--uchaly-font-mono);
+    font-size: 16px;
+    letter-spacing: 2px;
+    padding: 12px 16px;
+    background: var(--uchaly-subtle-bg);
+    border-radius: var(--uchaly-radius);
+    word-break: break-all;
+    text-align: center;
+    color: var(--uchaly-text);
+}
+
+/* ---------------------------------------------------------------------------
+   TOTP: список аутентификаторов
+   --------------------------------------------------------------------------- */
+.uchaly-otp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.uchaly-otp-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--uchaly-border);
+    border-radius: var(--uchaly-radius);
+    cursor: pointer;
+    font-size: 14px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+    .uchaly-otp-item:hover {
+        border-color: var(--uchaly-primary);
+    }
+
+    .uchaly-otp-item input[type="radio"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--uchaly-primary);
+        margin: 0;
+    }
+
+/* ---------------------------------------------------------------------------
+   Recovery codes
+   --------------------------------------------------------------------------- */
+.uchaly-recovery-codes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.uchaly-recovery-code {
+    font-family: var(--uchaly-font-mono);
+    font-size: 14px;
+    padding: 10px 12px;
+    background: var(--uchaly-subtle-bg);
+    border-radius: var(--uchaly-radius-sm);
+    text-align: center;
+    letter-spacing: 1px;
+    color: var(--uchaly-text);
+    word-break: break-all;
+}
+
+/* ---------------------------------------------------------------------------
+   Иконка ошибки
+   --------------------------------------------------------------------------- */
+.uchaly-error-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: var(--uchaly-asterisk);
+}
+
+/* ---------------------------------------------------------------------------
+   Условия использования
+   --------------------------------------------------------------------------- */
+.uchaly-terms-text {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 16px;
+    border: 1px solid var(--uchaly-border);
+    border-radius: var(--uchaly-radius);
+    background: var(--uchaly-subtle-bg);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--uchaly-text);
+    margin-bottom: 24px;
+}
+
+/* ---------------------------------------------------------------------------
+   Адаптив
+   --------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .uchaly-page {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .uchaly-card {
+        padding: 24px 20px;
+        border-radius: var(--uchaly-radius);
+    }
+
+    .uchaly-title {
+        font-size: 22px;
+    }
+
+    .uchaly-header-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .uchaly-required-note {
+        padding-top: 0;
+    }
+
+    .uchaly-input {
+        font-size: 16px;
+    }
+
+    .uchaly-recovery-codes {
+        grid-template-columns: 1fr;
+    }
+}
