@@ -32,6 +32,10 @@
   "actionTokenGeneratedByAdminLifespan": 43200,
   "actionTokenGeneratedByUserLifespan": 300,
 
+  "internationalizationEnabled": true,
+  "supportedLocales": [ "ru", "en" ],
+  "defaultLocale": "ru",
+
   "roles": {
     "realm": [
       {
@@ -764,10 +768,95 @@
         "subComponents": {},
         "config": {
           "kc.user.profile.config": [
-            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"required\":{\"roles\":[\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"required\":{\"roles\":[\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"required\":{\"roles\":[\"user\"]},\"multivalued\":false},{\"name\":\"patronymic\",\"displayName\":\"Отчество\",\"validations\":{\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"required\":{\"roles\":[\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"required\":{\"roles\":[\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"required\":{\"roles\":[\"user\"]},\"multivalued\":false},{\"name\":\"patronymic\",\"displayName\":\"${patronymic}\",\"validations\":{\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
           ]
         }
       }
     ]
+  },
+
+  "localizationTexts": {
+    "ru": {
+      "accountDisabledMessage": "Учётная запись отключена",
+      "backToApplication": "‹ Назад в приложение",
+      "backToLogin": "Назад ко входу",
+      "doForgotPassword": "Забыли пароль?",
+      "doLogIn": "Войти",
+      "doRegister": "Зарегистрироваться",
+      "email": "Email",
+      "emailLinkIdpTitle": "Связать {0}",
+      "emailVerified": "Email подтверждён",
+      "emailVerifyInstruction1": "Мы отправили вам письмо с инструкцией для подтверждения email.",
+      "emailVerifyInstruction2": "Не получили письмо?",
+      "emailVerifyInstruction3": "Нажмите сюда, чтобы отправить повторно.",
+      "errorTitle": "Произошла ошибка",
+      "familyName": "Фамилия",
+      "firstName": "Имя",
+      "fullName": "Полное имя",
+      "invalidUser": "Неверное имя пользователя или пароль",
+      "invalidUserMessage": "Неверное имя пользователя или пароль",
+      "loginAccountTitle": "Войдите в систему",
+      "loginTitle": "Вход в систему",
+      "loginTitleHtml": "<strong>Uchaly</strong> Вход",
+      "noAccount": "Нет аккаунта?",
+      "password": "Пароль",
+      "passwordConfirm": "Подтверждение пароля",
+      "passwordNew": "Новый пароль",
+      "patronymic": "Отчество",
+      "register": "Зарегистрироваться",
+      "registerTitle": "Регистрация",
+      "rememberMe": "Запомнить меня",
+      "requiredFields": "Поля, обязательные для заполнения",
+      "restartLoginTooltip": "Перезапустить вход",
+      "username": "Имя пользователя",
+      "usernameOrEmail": "Имя пользователя или Email",
+      "updatePassword": "Обновить пароль",
+      "updateProfile": "Обновить профиль",
+      "verifyEmailInstruction1": "Мы отправили вам письмо с инструкцией для подтверждения email.",
+      "verifyEmailInstruction2": "Не получили письмо?",
+      "verifyEmailInstruction3": "Нажмите сюда, чтобы отправить повторно.",
+      "verifyEmailTitle": "Подтверждение email"
+    },
+    "en": {
+      "accountDisabledMessage": "Account is disabled",
+      "backToApplication": "‹ Back to application",
+      "backToLogin": "Back to Login",
+      "doForgotPassword": "Forgot Password?",
+      "doLogIn": "Sign In",
+      "doRegister": "Register",
+      "email": "Email",
+      "emailLinkIdpTitle": "Link {0}",
+      "emailVerified": "Email verified",
+      "emailVerifyInstruction1": "An email with instructions to verify your email address has been sent to you.",
+      "emailVerifyInstruction2": "Haven't received a verification code in your email?",
+      "emailVerifyInstruction3": "Click here to re-send the email.",
+      "errorTitle": "We are sorry...",
+      "familyName": "Last name",
+      "firstName": "First name",
+      "fullName": "Full name",
+      "invalidUser": "Invalid username or password.",
+      "invalidUserMessage": "Invalid username or password.",
+      "loginAccountTitle": "Sign in to your account",
+      "loginTitle": "Sign in",
+      "loginTitleHtml": "<strong>Uchaly</strong> Sign in",
+      "noAccount": "New user?",
+      "password": "Password",
+      "passwordConfirm": "Confirm password",
+      "passwordNew": "New password",
+      "patronymic": "Patronymic",
+      "register": "Register",
+      "registerTitle": "Register",
+      "rememberMe": "Remember me",
+      "requiredFields": "Required fields",
+      "restartLoginTooltip": "Restart login",
+      "username": "Username",
+      "usernameOrEmail": "Username or email",
+      "updatePassword": "Update password",
+      "updateProfile": "Update profile",
+      "verifyEmailInstruction1": "You need to verify your email address to activate your account.",
+      "verifyEmailInstruction2": "Haven't received a verification code in your email?",
+      "verifyEmailInstruction3": "Click here to re-send the email.",
+      "verifyEmailTitle": "Verify email"
+    }
   }
 }
