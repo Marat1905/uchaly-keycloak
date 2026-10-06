@@ -8,7 +8,11 @@ const LayoutContent: React.FC = () => {
     const { isExpanded, isHovered, isMobileOpen } = useSidebar();
 
     return (
-        <div className="min-h-screen xl:flex">
+        // ВАЖНО: добавили "bg-gray-50 dark:bg-gray-900" —
+        // без этого прослойки между сайдбаром, шапкой и контентом
+        // просвечивали фоном <body> (в тёмной теме оставался светлым,
+        // т.к. .dark body в index.css не переопределён).
+        <div className="min-h-screen xl:flex bg-gray-50 dark:bg-gray-900">
             <div>
                 <AppSidebar />
                 <Backdrop />
