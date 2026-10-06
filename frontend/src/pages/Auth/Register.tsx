@@ -1,5 +1,17 @@
 // src/pages/Auth/Register.tsx
-import React, { useEffect, useRef } from 'react';
+// =============================================================================
+// Страница регистрации.
+// После перехода на Keycloak регистрация выполняется на стороне Keycloak
+// (registrationAllowed=true в realm) или через Admin REST API.
+// Эта страница просто редиректит пользователя в Keycloak.
+//
+// ВАЖНО: useEffect теперь срабатывает ровно один раз — register стабильна
+// благодаря useCallback в AuthContext. Раньше register пересоздавалась
+// на каждом рендере, эффект крутился по кругу и вызывал множественные
+// редиректы (в т.ч. на /[object Promise]).
+// =============================================================================
+
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import PageMeta from '../../components/common/PageMeta';
@@ -8,22 +20,23 @@ const Register: React.FC = () => {
     const { isAuthenticated, register, loading } = useAuth();
     const navigate = useNavigate();
 
-    const hasStartedRef = useRef(false);
-
     useEffect(() => {
+        // Пока идёт инициализация Keycloak — ничего не делаем.
         if (loading) return;
 
+        // Если пользователь уже вошёл — отправляем на главную,
+        // повторная регистрация бессмысленна.
         if (isAuthenticated) {
             navigate('/', { replace: true });
             return;
         }
 
-        if (hasStartedRef.current) return;
-        hasStartedRef.current = true;
-
+        // Иначе — открываем страницу регистрации Keycloak.
+        // register() теперь использует login({ action: 'register' }),
+        // что гарантированно уводит на форму регистрации (а не на
+        // /[object Promise], как было раньше с keycloak.register()).
         register().catch((err) => {
             console.error('[Register] Ошибка запуска Keycloak register:', err);
-            hasStartedRef.current = false;
         });
     }, [isAuthenticated, loading, register, navigate]);
 
@@ -83,10 +96,7 @@ const Register: React.FC = () => {
                     </div>
 
                     <button
-                        onClick={() => {
-                            hasStartedRef.current = false;
-                            register().catch((err) => console.error('[Register] Ошибка:', err));
-                        }}
+                        onClick={() => register()}
                         className="mt-6 px-6 py-3 bg-gradient-to-r from-brand-600 to-purple-600 text-white font-semibold rounded-xl hover:from-brand-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
                     >
                         Зарегистрироваться через Keycloak

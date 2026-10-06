@@ -1,4 +1,15 @@
 // src/pages/Auth/Login.tsx
+// =============================================================================
+// Страница входа.
+// После перехода на Keycloak реальная форма входа находится на стороне
+// Keycloak. Эта страница просто редиректит пользователя в Keycloak,
+// если он ещё не аутентифицирован.
+//
+// ВАЖНО: login теперь стабильна (useCallback в AuthContext), а в
+// зависимостях useEffect мы читаем только location.state (через ref),
+// чтобы эффект не перезапускался при смене location.pathname.
+// =============================================================================
+
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
@@ -9,30 +20,27 @@ const Login: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Защита от повторного вызова login() в StrictMode / при ререндерах
-    const hasStartedRef = useRef(false);
+    // Запоминаем "откуда пришли" один раз при монтировании — это защищает
+    // от повторного запуска эффекта при смене location между рендерами.
+    const fromRef = useRef<string>(
+        (location.state as { from?: { pathname?: string } })?.from?.pathname ?? '/',
+    );
 
     useEffect(() => {
+        // Пока идёт инициализация Keycloak — ничего не делаем.
         if (loading) return;
 
-        // Если уже залогинен — уходим на исходную страницу
+        // Если уже аутентифицирован — уходим на главную (или на исходную страницу)
         if (isAuthenticated) {
-            const from =
-                (location.state as { from?: { pathname?: string } })?.from?.pathname ?? '/';
-            navigate(from, { replace: true });
+            navigate(fromRef.current, { replace: true });
             return;
         }
 
-        // Иначе — редирект на Keycloak (ровно один раз)
-        if (hasStartedRef.current) return;
-        hasStartedRef.current = true;
-
+        // Иначе запускаем Authorization Code Flow + PKCE
         login().catch((err) => {
             console.error('[Login] Ошибка запуска Keycloak login:', err);
-            // Разрешаем повторную попытку при ошибке
-            hasStartedRef.current = false;
         });
-    }, [isAuthenticated, loading, login, navigate, location]);
+    }, [isAuthenticated, loading, login, navigate]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
@@ -90,10 +98,7 @@ const Login: React.FC = () => {
                     </div>
 
                     <button
-                        onClick={() => {
-                            hasStartedRef.current = false;
-                            login().catch((err) => console.error('[Login] Ошибка:', err));
-                        }}
+                        onClick={() => login()}
                         className="mt-6 px-6 py-3 bg-gradient-to-r from-brand-600 to-purple-600 text-white font-semibold rounded-xl hover:from-brand-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
                     >
                         Войти через Keycloak

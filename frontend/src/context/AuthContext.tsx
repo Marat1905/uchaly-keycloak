@@ -1,7 +1,9 @@
 // src/context/AuthContext.tsx
 // =============================================================================
 // Контекст аутентификации на базе Keycloak.
-// Учитывает React 19 StrictMode: init и подписки выполняются один раз.
+// - Инициализирует keycloak-js при старте (идемпотентно, безопасно в StrictMode).
+// - Раз в 30 секунд обновляет access-токен.
+// - Предоставляет useAuth() с той же формой API, что и раньше.
 // =============================================================================
 
 import React, {
@@ -11,13 +13,16 @@ import React, {
     useEffect,
     useMemo,
     useCallback,
-    useRef,
     type ReactNode,
 } from 'react';
-import keycloak, { initKeycloak, setupTokenRefresh } from '../keycloak';
+import keycloak, { initKeycloak, setupTokenRefresh, getRedirectUri } from '../keycloak';
 import { authService } from '../services/authService';
 import type { UserDto } from '../types/auth';
 
+/**
+ * Тестовые роли (заглушка для совместимости с прежним AuthContext).
+ * В продакшене вычисляется из фактических ролей Keycloak.
+ */
 export type TestRole = 'User' | 'Safety' | 'TCX' | 'Admin';
 
 interface AuthContextType {
@@ -38,10 +43,25 @@ interface AuthContextType {
     setTestRole: (role: TestRole) => void;
     cycleTestRole: () => void;
 
+    /**
+     * Запускает Authorization Code Flow + PKCE — редиректит на Keycloak.
+     */
     login: () => Promise<void>;
+    /**
+     * Открывает форму регистрации Keycloak.
+     */
     register: () => Promise<void>;
+    /**
+     * Выход из системы: очищает SSO-сессию Keycloak.
+     */
     logout: () => void;
+    /**
+     * Обновляет данные пользователя из токена.
+     */
     refreshUser: () => Promise<void>;
+    /**
+     * Открывает Account Console Keycloak для редактирования профиля.
+     */
     openAccountConsole: () => Promise<void>;
     loading: boolean;
 }
@@ -64,10 +84,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<UserDto | null>(null);
     const [loading, setLoading] = useState(true);
     const [authenticated, setAuthenticated] = useState(false);
-
-    // Флаг: bootstrap уже запускался в этом жизненном цикле компонента.
-    // Защищает от двойного срабатывания useEffect в StrictMode.
-    const bootstrappedRef = useRef(false);
 
     // -------------------------------------------------------------------------
     // Вычисляемые роли
@@ -98,10 +114,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const fullNameInitials = useMemo(() => {
         if (!user) return '';
+
         const { lastName, firstName, patronymic } = user;
         let formatted = lastName;
-        if (firstName) formatted += ` ${firstName.charAt(0)}.`;
-        if (patronymic) formatted += `${patronymic.charAt(0)}.`;
+
+        if (firstName) {
+            formatted += ` ${firstName.charAt(0)}.`;
+        }
+        if (patronymic) {
+            formatted += `${patronymic.charAt(0)}.`;
+        }
+
         return formatted;
     }, [user]);
 
@@ -129,18 +152,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // -------------------------------------------------------------------------
     // Инициализация Keycloak
+    //
+    // ВАЖНО: initKeycloak() теперь идемпотентна — она возвращает
+    // один и тот же Promise при повторных вызовах. Поэтому двойное
+    // монтирование в StrictMode больше не приводит к ошибке
+    // "A 'Keycloak' instance can only be initialized once."
     // -------------------------------------------------------------------------
     useEffect(() => {
-        // Защита от StrictMode: не запускаем bootstrap дважды
-        if (bootstrappedRef.current) return;
-        bootstrappedRef.current = true;
-
         let cleanupRefresh: (() => void) | undefined;
 
         const bootstrap = async () => {
             setLoading(true);
 
-            // initKeycloak идемпотентна — можно вызывать сколько угодно раз
             const isAuth = await initKeycloak();
             setAuthenticated(isAuth);
 
@@ -155,12 +178,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         bootstrap();
 
-        // Обработчики событий Keycloak. Функции перезаписываются,
-        // поэтому дублирования не будет.
+        // Слушаем события Keycloak
         keycloak.onTokenExpired = () => {
             keycloak.updateToken(30).catch(() => {
                 console.warn('[AuthContext] Token expired, logging out');
-                keycloak.logout().catch(() => keycloak.clearToken());
+                keycloak.logout({ redirectUri: getRedirectUri() });
             });
         };
 
@@ -178,10 +200,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return () => {
             if (cleanupRefresh) cleanupRefresh();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // -------------------------------------------------------------------------
     // Публичные методы
+    //
+    // ВАЖНО: оборачиваем login/register/logout/refreshUser/openAccountConsole
+    // в useCallback, чтобы ссылки на функции были стабильными между
+    // рендерами. Иначе useEffect в Login.tsx/Register.tsx, который
+    // зависит от них, будет срабатывать на каждый рендер и вызывать
+    // повторные редиректы.
     // -------------------------------------------------------------------------
     const login = useCallback(async () => {
         await authService.login();

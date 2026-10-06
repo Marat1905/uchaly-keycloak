@@ -1,0 +1,18 @@
+<!--
+  frontend/public/silent-check-sso.html
+  Служебная страница для тихой проверки SSO через iframe.
+  keycloak-js загружает её внутри iframe и получает сообщение о том,
+  залогинен ли пользователь, без редиректа.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Silent SSO Check</title>
+</head>
+<body>
+    <script>
+      parent.postMessage(location.href, location.origin);
+    </script>
+</body>
+</html>
